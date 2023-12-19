@@ -63,7 +63,7 @@ async def test_post_user_handler(
 ) -> None:
     user_write = await pydantinc_user_factory(first_name, last_name, password)
 
-    await user_handler.post(user_write)
+    await user_handler.add(user_write)
 
     user = await async_db_session.get(User, user_write.id)
     assert user is not None
@@ -84,7 +84,7 @@ async def test_post_user_handler_fails_on_invalid_type(
     user_write = await pydantinc_user_factory(first_name, last_name, password)
 
     with pytest.raises(AttributeError):
-        await user_handler.post(user_write.model_dump())  # type: ignore
+        await user_handler.add(user_write.model_dump())  # type: ignore
 
 
 @pytest.mark.asyncio
@@ -99,7 +99,7 @@ async def test_post_user_handler_fails_repetative_insert(
     )
     user_write = await pydantinc_user_factory(first_name, last_name, password)
 
-    await user_handler.post(user_write)
+    await user_handler.add(user_write)
 
     with pytest.raises(sqlalchemy.exc.IntegrityError):
-        await user_handler.post(user_write)
+        await user_handler.add(user_write)
