@@ -1,10 +1,8 @@
 import asyncio
 from typing import AsyncGenerator, Generator
 
-import pytest
 import pytest_asyncio
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
 from source.config import TEST_DATABASE_ASYNC_URL, Base
 
@@ -27,7 +25,7 @@ async def init_models() -> None:
         await conn.run_sync(Base.metadata.create_all)
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 def event_loop() -> Generator[asyncio.AbstractEventLoop, None, None]:
     try:
         loop = asyncio.get_running_loop()

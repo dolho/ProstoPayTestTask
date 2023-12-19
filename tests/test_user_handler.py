@@ -1,6 +1,7 @@
 import uuid
 
 import pytest
+import sqlalchemy.exc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from source.user_handler.models import User
@@ -12,6 +13,7 @@ from tests.factories.user import pydantinc_user_factory, user_factory
 @pytest.fixture
 def user_handler(async_db_session: AsyncSession) -> UserHandler:
     return UserHandler(async_db_session)
+
 
 @pytest.mark.asyncio
 async def test_retrieve_user_handler(
@@ -83,3 +85,21 @@ async def test_post_user_handler_fails_on_invalid_type(
 
     with pytest.raises(AttributeError):
         await user_handler.post(user_write.model_dump())  # type: ignore
+
+
+@pytest.mark.asyncio
+async def test_post_user_handler_fails_repetative_insert(
+    async_db_session: AsyncSession,
+    user_handler: UserHandler,
+) -> None:
+    first_name, last_name, password = (
+        "TestUserName",
+        "example@example.com",
+        "strongPassword",
+    )
+    user_write = await pydantinc_user_factory(first_name, last_name, password)
+
+    await user_handler.post(user_write)
+
+    with pytest.raises(sqlalchemy.exc.IntegrityError):
+        await user_handler.post(user_write)

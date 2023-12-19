@@ -15,8 +15,6 @@ class UserHandler:
         return UserReadDTO.model_validate(user_db) if user_db is not None else None
 
     async def post(self, user: UserWriteDTO) -> None:
-        new_user_db = User()
-        for key, value in user.model_dump().items():
-            setattr(new_user_db, key, value)
+        new_user_db = User(**user.model_dump())
         self._session.add(new_user_db)
         await self._session.commit()
